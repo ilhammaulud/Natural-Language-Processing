@@ -55,7 +55,7 @@ def run():
                     "Probabilitas": float(probs[cls_id])
                 })
 
-            st.subheader("📌 Hasil Prediksi")
+            st.subheader("📌 Result")
             st.dataframe(results, use_container_width=True)
 
 if __name__ == "__main__":
