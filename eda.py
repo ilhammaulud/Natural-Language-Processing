@@ -4,6 +4,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 
+# 1️⃣ Set theme and default figure size
+sns.set(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 5)
+
+# 2️⃣ Function to map rating to sentiment
+def map_rating_to_sentiment(r):
+    if r >= 4:
+        return "positive"
+    elif r <= 2:
+        return "negative"
+    else:
+        return "neutral"
+
 def run():
     # Header
     st.write('# Google Play Store Reviews Analysis')
@@ -19,17 +32,26 @@ def run():
     # Load dataset
     data = pd.read_csv('dataset.csv')
 
+    # Create sentiment column from rating/score
+    if 'score' in data.columns:
+        data['sentiment'] = data['score'].apply(map_rating_to_sentiment)
+    elif 'Rating' in data.columns:
+        data['sentiment'] = data['Rating'].apply(map_rating_to_sentiment)
+    else:
+        st.warning("No 'score' or 'Rating' column found in dataset!")
+    
     # Show dataset
     st.write('# Dataset')
-    st.dataframe(data)
+    st.dataframe(data.head())
 
     # EDA
     st.write("# Exploratory Data Analysis")
 
     # Rating Distribution
+    rating_col = 'score' if 'score' in data.columns else 'Rating'
     st.write('## Rating Distribution')
     fig = plt.figure(figsize=(10,4))
-    sns.countplot(x='Rating', data=data)
+    sns.countplot(x=rating_col, data=data)
     plt.title('Distribution of Ratings')
     st.pyplot(fig)
     st.markdown('''
@@ -42,14 +64,14 @@ def run():
     ''')
 
     # Sentiment Distribution
-    if 'Sentiment' in data.columns:
+    if 'sentiment' in data.columns:
         st.write('## Sentiment Distribution')
         fig = plt.figure(figsize=(10,4))
-        sns.countplot(x='Sentiment', data=data)
+        sns.countplot(x='sentiment', data=data)
         plt.title('Distribution of Sentiments')
         st.pyplot(fig)
         st.markdown('''
-            This chart shows the distribution of sentiment labels (e.g., Positive, Neutral, Negative).
+            This chart shows the distribution of sentiment labels (Positive, Neutral, Negative).
             
             Insights:
             1. Majority of reviews are positive, reflecting user satisfaction.
@@ -58,8 +80,13 @@ def run():
         ''')
 
     # Review Length Distribution
+    review_col = 'content'  # gunakan kolom content
     st.write('## Review Length Distribution')
-    data['review_length'] = data['Review'].astype(str).apply(len)
+
+    # Buat kolom review_length
+    data['review_length'] = data[review_col].astype(str).apply(len)
+
+    # Histogram review lengths
     fig = plt.figure(figsize=(10,4))
     sns.histplot(data['review_length'], bins=20, kde=True)
     plt.title('Histogram of Review Lengths')
@@ -75,8 +102,13 @@ def run():
 
     # Scatter: Rating vs Review Length
     st.write('## Rating vs Review Length')
-    fig_px = px.scatter(data, x='Rating', y='review_length', color='Sentiment' if 'Sentiment' in data.columns else None,
-                        hover_data=['App', 'Review'])
+    fig_px = px.scatter(
+        data, 
+        x=rating_col,  # pastikan rating_col sudah didefinisikan sebelumnya
+        y='review_length', 
+        color='sentiment' if 'sentiment' in data.columns else None,
+        hover_data=['App', review_col] if 'App' in data.columns else [review_col]
+    )
     st.plotly_chart(fig_px)
     st.markdown('''
         This scatter plot shows the relationship between user ratings and review lengths.
@@ -85,6 +117,7 @@ def run():
         1. We can see whether higher or lower ratings tend to have longer reviews.
         2. Hovering over points allows inspection of specific reviews for more context.
     ''')
+
 
     # Top Apps by Review Count
     if 'App' in data.columns:

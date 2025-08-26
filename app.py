@@ -2,29 +2,26 @@
 import streamlit as st
 import eda, predict
 
-# bagian dalam sidebar
+# Sidebar
 with st.sidebar:
     st.write("# Page Navigation")
 
-    # toggle pilih halaman
-    page = st.selectbox("Pilih Halaman", ("EDA", 'Predict Rating'))
+    # Page selection
+    page = st.selectbox("Select Page", ("EDA", "Predict Sentiment"))
 
-    # test
-    st.write(f'Halaman yang dituju {page}')
+    st.write(f'Current Page: {page}')
 
     st.write('## About')
-    # magic
-    '''
-    Page ini berisikan informasi mengenai sesi aktivitas jaringan pengguna, termasuk detail seperti ukuran paket data, 
-    jenis protokol yang digunakan, jumlah percobaan login, durasi sesi, metode enkripsi yang diterapkan, 
-    skor reputasi IP, jumlah kegagalan login, tipe browser, serta indikator akses pada waktu yang tidak biasa. 
-    Data ini bertujuan untuk membantu mengidentifikasi pola-pola aktivitas mencurigakan yang dapat mengindikasikan
-    adanya serangan siber atau pelanggaran keamanan.
-    '''
+    st.markdown('''
+    This app allows you to explore Google Play Store reviews and predict user sentiment.
+    
+    **EDA Page:** Explore the dataset of 6,000 Messenger app reviews, visualize rating distribution, review lengths, sentiment distribution, and identify patterns in user feedback.
+    
+    **Predict Sentiment Page:** Enter a new review and predict its sentiment using the trained ANN model.
+    ''')
 
-# bagian luar sidebar
+# Main content
 if page == 'EDA':
     eda.run()
-
 else:
     predict.run()

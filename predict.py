@@ -22,19 +22,19 @@ label2id, id2label = load_mappings()
 def run():
     st.title("📊 Sentiment Analysis Prediction")
 
-    st.write("Masukkan teks untuk diprediksi sentimennya menggunakan model ANN")
+    st.write("Enter text to predict its sentiment using the ANN model")
 
     # Form input teks
     with st.form("sentiment_form"):
         input_texts = st.text_area(
-            "Masukkan teks (pisahkan dengan enter untuk banyak data):",
-            placeholder="Contoh:\nI really love this product!\nBad.\nLove this apk!"
+            "Enter text (separate with enter for multiple entries):",
+            placeholder="Example:\nI really love this product!\nBad.\nLove this apk!"
         )
         submit = st.form_submit_button("Predict")
 
     if submit:
         if not input_texts.strip():
-            st.warning("Tolong isi teks terlebih dahulu.")
+            st.warning("Please fill in the text first.")
         else:
             # Split input jadi list
             sample_texts = [t.strip() for t in input_texts.split("\n") if t.strip()]
