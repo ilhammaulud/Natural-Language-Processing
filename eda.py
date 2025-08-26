@@ -3,138 +3,105 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
-from PIL import Image
-
 
 def run():
     # Header
-    st.write('# Cybersecurity Session Data Analysis')
+    st.write('# Google Play Store Reviews Analysis')
 
-    # Latar belakang
-    st.write('# Latar Belakang')
+    # Background
+    st.write('# Background')
     st.markdown('''
-        Dataset ini berisi informasi sesi login pengguna yang digunakan untuk
-        menganalisis potensi serangan siber. Fitur-fitur mencakup ukuran paket,
-        jenis protokol, jumlah percobaan login, reputasi IP, dan aktivitas
-        yang tidak biasa.
+        This dataset contains 6,000 user reviews of the Messenger app from Google Play Store.
+        The goal of this exploratory data analysis (EDA) is to understand the distribution
+        of ratings, sentiments, review lengths, and highlight patterns in user feedback.
     ''')
 
-    # Dataset
-    data = pd.read_csv('dataset.csv')
+    # Load dataset
+    data = pd.read_csv('google_play_reviews.csv')
 
-
-
-    # Tampilkan dataset
+    # Show dataset
     st.write('# Dataset')
     st.dataframe(data)
 
     # EDA
     st.write("# Exploratory Data Analysis")
 
-    # Distribusi Network Packet Size
-    st.write('## Distribusi Network Packet Size')
+    # Rating Distribution
+    st.write('## Rating Distribution')
     fig = plt.figure(figsize=(10,4))
-    sns.histplot(data['network_packet_size'], kde=True, bins=10)
-    plt.title('Histogram of Network Packet Size')
+    sns.countplot(x='Rating', data=data)
+    plt.title('Distribution of Ratings')
     st.pyplot(fig)
     st.markdown('''
-        Dari visualisasi distribusi network_packet_size yang ditampilkan, 
-        terlihat pola sebaran ukuran paket jaringan pada seluruh sesi. Histogram menunjukkan frekuensi kemunculan setiap rentang 
-        ukuran paket, sementara garis KDE memberikan gambaran trend kepadatan data secara lebih halus.
+        The countplot above shows the distribution of user ratings from 1 to 5 stars.
         
-        Berdasarkan grafik:
-
-        1. Mayoritas sesi memiliki ukuran paket yang berada pada rentang tertentu, yang tampak sebagai puncak distribusi.
-        2. Sebaran data menunjukkan variasi ukuran paket; ada beberapa paket dengan ukuran yang jauh dari mayoritas, yang kemungkinan merupakan outlier atau kondisi jaringan yang tidak biasa.
-        3. Distribusi ini membantu memahami karakteristik lalu lintas jaringan dan dapat menjadi acuan awal untuk deteksi anomali atau serangan siber, karena paket dengan ukuran ekstrem dapat menunjukkan aktivitas yang mencurigakan.
-        4. Secara keseluruhan, visualisasi ini memberikan insight mengenai frekuensi dan pola umum ukuran paket jaringan, yang penting dalam proses feature analysis sebelum diterapkan ke model machine learning.
+        Insights:
+        1. Most users tend to give ratings in the higher range (4-5 stars), indicating general satisfaction.
+        2. Lower ratings may indicate negative experiences or issues with the app.
+        3. Understanding rating distribution helps identify patterns of user satisfaction.
     ''')
 
-    # Distribusi IP Reputation Score
-    st.write('## Distribusi IP Reputation Score')
+    # Sentiment Distribution
+    if 'Sentiment' in data.columns:
+        st.write('## Sentiment Distribution')
+        fig = plt.figure(figsize=(10,4))
+        sns.countplot(x='Sentiment', data=data)
+        plt.title('Distribution of Sentiments')
+        st.pyplot(fig)
+        st.markdown('''
+            This chart shows the distribution of sentiment labels (e.g., Positive, Neutral, Negative).
+            
+            Insights:
+            1. Majority of reviews are positive, reflecting user satisfaction.
+            2. Negative reviews highlight areas for potential improvement.
+            3. Sentiment analysis can be used to monitor app performance and user feedback trends.
+        ''')
+
+    # Review Length Distribution
+    st.write('## Review Length Distribution')
+    data['review_length'] = data['Review'].astype(str).apply(len)
     fig = plt.figure(figsize=(10,4))
-    sns.histplot(data['ip_reputation_score'], kde=True, bins=10)
-    plt.title('Histogram of IP Reputation Score')
+    sns.histplot(data['review_length'], bins=20, kde=True)
+    plt.title('Histogram of Review Lengths')
     st.pyplot(fig)
     st.markdown('''
-        Visualisasi histogram ip_reputation_score menunjukkan sebaran skor reputasi IP dari seluruh sesi yang dianalisis. 
-        Garis KDE memberikan gambaran kepadatan distribusi secara lebih halus.
-
-        Berdasarkan grafik:
-
-        1. Mayoritas IP memiliki skor yang berada pada rentang tertentu, menandakan sebagian besar sesi berasal dari IP dengan reputasi baik hingga sedang.
-        2. Ada beberapa IP dengan skor ekstrem, baik rendah maupun tinggi, yang dapat dianggap sebagai outlier atau potensi sumber risiko tinggi.
-        3. Distribusi ini membantu dalam memahami profil keamanan jaringan dan bisa menjadi fitur penting untuk model prediksi risiko serangan siber.
-        4. Secara keseluruhan, visualisasi ini memberikan insight mengenai pola umum reputasi IP yang berguna untuk analisis lebih lanjut, termasuk identifikasi sesi yang berpotensi berisiko tinggi.
-    ''')
-
-    # Jumlah session berdasarkan protocol type
-    st.write('## Protocol Type Count')
-    fig = plt.figure(figsize=(6,4))
-    sns.countplot(x='protocol_type', data=data)
-    plt.title('Protocol Type Distribution')
-    st.pyplot(fig)
-    st.markdown('''
-        Visualisasi countplot ini menampilkan jumlah sesi berdasarkan jenis protokol (protocol_type) yang digunakan dalam dataset.
+        The histogram shows the distribution of review text lengths.
         
-        Dari grafik:
-
-        1. Terlihat distribusi masing-masing protokol, misalnya TCP, UDP, atau ICMP, menunjukkan protokol mana yang paling sering digunakan.
-        2. Jika satu protokol mendominasi jumlah sesi, hal ini dapat memberikan insight mengenai alur lalu lintas jaringan dan potensi titik lemah keamanan.
-        3. Perbedaan jumlah sesi antar protokol juga bisa membantu dalam penentuan strategi monitoring dan proteksi, misalnya fokus pada protokol yang lebih banyak digunakan untuk deteksi intrusi.
-        4. Secara keseluruhan, grafik ini memberikan pemahaman awal mengenai karakteristik lalu lintas jaringan berdasarkan jenis protokol, yang berguna sebagai input dalam analisis risiko atau model prediksi serangan siber.
+        Insights:
+        1. Most reviews are short, often under 200 characters.
+        2. Longer reviews may contain more detailed feedback or issues.
+        3. Understanding review lengths helps in preprocessing text for NLP tasks.
     ''')
 
-    # Plotly scatter: IP Reputation vs Failed Logins
-    st.write('## IP Reputation vs Failed Logins')
-    fig_px = px.scatter(data, x='ip_reputation_score', y='failed_logins', color='protocol_type',
-                        hover_data=['session_id', 'browser_type'])
+    # Scatter: Rating vs Review Length
+    st.write('## Rating vs Review Length')
+    fig_px = px.scatter(data, x='Rating', y='review_length', color='Sentiment' if 'Sentiment' in data.columns else None,
+                        hover_data=['App', 'Review'])
     st.plotly_chart(fig_px)
     st.markdown('''
-        Visualisasi scatter plot ini menunjukkan hubungan antara skor reputasi IP (ip_reputation_score) dengan jumlah login gagal (failed_logins), diwarnai berdasarkan protocol_type.
+        This scatter plot shows the relationship between user ratings and review lengths.
         
-        Dari plot ini:
-
-        1. Kita dapat melihat pola distribusi login gagal terhadap skor reputasi IP, misalnya apakah IP dengan skor rendah cenderung memiliki lebih banyak percobaan login gagal.
-        2. Warna berdasarkan protocol_type membantu mengidentifikasi protokol mana yang lebih sering mengalami login gagal.
-        3. Fitur hover_data seperti session_id dan browser_type memungkinkan pemeriksaan detail sesi tertentu untuk analisis lebih mendalam.
-        4. Secara keseluruhan, scatter plot ini memberikan insight awal mengenai korelasi potensi ancaman dengan reputasi IP dan pola login yang mencurigakan, yang penting untuk deteksi intrusi siber dan analisis risiko.
+        Insights:
+        1. We can see whether higher or lower ratings tend to have longer reviews.
+        2. Hovering over points allows inspection of specific reviews for more context.
     ''')
 
-    # Heatmap korelasi numerik
-    st.write('## Korelasi Fitur Numerik')
-    fig = plt.figure(figsize=(8,5))
-    sns.heatmap(data[['network_packet_size','login_attempts','session_duration',
-                      'ip_reputation_score','failed_logins']].corr(),
-                annot=True, cmap='coolwarm')
-    plt.title('Correlation Heatmap')
-    st.pyplot(fig)
-    st.markdown('''
-    Berdasarkan hasil analisis korelasi antar fitur, diperoleh temuan sebagai berikut:
-
-    1. Tingkat Korelasi Rendah Secara Umum
-
-        Semua nilai korelasi antar fitur berada sangat dekat dengan nol, berkisar antara -0.0135 hingga 0.0216. Hal ini menunjukkan bahwa secara linear, tidak ada hubungan kuat antar fitur pada dataset ini.
-
-    2. Pasangan Fitur dengan Korelasi Positif Tertinggi
-
-        * session_duration dengan network_packet_size memiliki korelasi 0.02165 — meskipun tertinggi di tabel, nilainya tetap sangat kecil sehingga hubungannya hampir tidak signifikan.
-
-        * failed_logins dengan ip_reputation_score memiliki korelasi 0.01561, yang juga termasuk lemah.
-
-    3. Pasangan Fitur dengan Korelasi Negatif
-
-        * network_packet_size dengan failed_logins memiliki korelasi -0.01167, menunjukkan hubungan negatif yang sangat lemah.
-
-        * login_attempts dengan failed_logins memiliki korelasi -0.01350, yang berarti sedikit indikasi bahwa semakin banyak upaya login, jumlah gagal login justru sedikit menurun, tetapi nilainya terlalu kecil untuk diambil kesimpulan kuat.
-
-    4. Implikasi terhadap Modeling
-
-        * Korelasi yang rendah antar fitur ini mengindikasikan bahwa tidak ada masalah multikolinearitas signifikan di dataset.
-
-        * Fitur-fitur yang ada kemungkinan memberikan informasi yang relatif unik, sehingga semuanya masih layak dipertimbangkan dalam proses pemodelan tanpa risiko redundansi yang tinggi.
-    ''')
-
+    # Top Apps by Review Count
+    if 'App' in data.columns:
+        st.write('## Top Apps by Review Count')
+        top_apps = data['App'].value_counts().head(10)
+        fig = plt.figure(figsize=(8,4))
+        sns.barplot(x=top_apps.index, y=top_apps.values)
+        plt.xticks(rotation=45)
+        plt.title('Top 10 Apps by Number of Reviews')
+        st.pyplot(fig)
+        st.markdown('''
+            The bar chart shows the apps with the highest number of reviews.
+            
+            Insights:
+            1. Apps with more reviews likely have a larger user base.
+            2. Review count can correlate with app popularity and reliability of sentiment analysis.
+        ''')
 
 if __name__ == '__main__':
     run()
