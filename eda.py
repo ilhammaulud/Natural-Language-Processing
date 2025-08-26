@@ -17,7 +17,7 @@ def run():
     ''')
 
     # Load dataset
-    data = pd.read_csv('google_play_reviews.csv')
+    data = pd.read_csv('dataset.csv')
 
     # Show dataset
     st.write('# Dataset')
